@@ -1,0 +1,17 @@
+{
+  "name": "deaddrop",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "express": "^4.14.0",
+    "mongoose": "^4.6.3",
+    "node-telegram-bot-api": "^0.23.3",
+    "request": "^2.75.0"
+  }
+}
