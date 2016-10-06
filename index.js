@@ -49,6 +49,10 @@ var app = express()
 app.use(express.static(require('path').join(__dirname, 'static')))
 
 app.get('/:id.:type', (req, res, next) => {
+  if (!req.params || !req.params.id) {
+    return
+  }
+  
   model.findOne({
     id: req.params.id
   }).then(item => {
