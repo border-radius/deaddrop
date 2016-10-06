@@ -1,13 +1,13 @@
 {
   "name": "deaddrop",
   "version": "1.0.0",
-  "description": "",
+  "description": "a new era of filesharing",
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
-  "author": "",
-  "license": "ISC",
+  "author": "border-radius",
+  "license": "MIT",
   "dependencies": {
     "express": "^4.14.0",
     "mongoose": "^4.6.3",
