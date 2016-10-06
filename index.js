@@ -15,9 +15,23 @@ bot.on('message', msg => {
   }
 
   var file = msg.document
+  var filetype = file && file.file_type
+
+  if (file && !filetype) {
+    var fileNameParts = file.file_name.split('.')
+
+    if (fileNameParts.length > 1) {
+      filetype = fileNameParts.pop()
+    }
+  }
 
   if (!file && msg.photo) {
     file = msg.photo[msg.photo.length - 1]
+  }
+
+  if (!file && msg.audio) {
+    file = msg.audio
+    filetype = 'mp3'
   }
 
   if (!file) {
@@ -29,7 +43,7 @@ bot.on('message', msg => {
     author: [msg.from.first_name, msg.from.last_name].join(' '),
     message: msg,
     file_id: file.file_id,
-    file_type: file.file_type || 'jpg',
+    file_type: filetype || 'jpg',
     date: msg.date
   })
 
@@ -52,7 +66,7 @@ app.get('/:id.:type', (req, res, next) => {
   if (!req.params || !req.params.id) {
     return
   }
-  
+
   model.findOne({
     id: req.params.id
   }).then(item => {
