@@ -10,6 +10,7 @@ var config = require('./config.json')
 var bot = new TelegramBot(config.token, config.options)
 
 bot.on('message', msg => {
+  console.log(msg)
   if (msg.text === '/start') {
     return bot.sendMessage(msg.from.id, 'Send me any file or picture and I will host it online!')
   }
@@ -32,6 +33,16 @@ bot.on('message', msg => {
   if (!file && msg.audio) {
     file = msg.audio
     filetype = 'mp3'
+  }
+
+  if (!file && msg.voice) {
+    file = msg.voice
+    filetype = 'ogg'
+  }
+
+  if (!file && msg.sticker) {
+    file = msg.sticker
+    filetype = 'webp'
   }
 
   if (!file) {
