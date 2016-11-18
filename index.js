@@ -81,7 +81,9 @@ app.get('/:id.:type', (req, res, next) => {
   model.findOne({
     id: req.params.id
   }).then(item => {
-    bot.getFileLink(item.file_id).then(link => request(link).pipe(res)).catch(next)
+    bot.getFileLink(item.file_id).then(link => request(link).on('response', function(resp) {
+      delete resp.headers['content-disposition'];
+    }).pipe(res)).catch(next)
   }).catch(next)
 })
 
