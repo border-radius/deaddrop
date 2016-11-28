@@ -83,6 +83,11 @@ app.get('/:id.:type', (req, res, next) => {
   }).then(item => {
     bot.getFileLink(item.file_id).then(link => request(link).on('response', function(resp) {
       delete resp.headers['content-disposition'];
+      var type = item.file_type && item.file_type.toLowerCase()
+
+      if (['jpg', 'jpeg', 'png', 'gif', 'bmp', 'webp'].indexOf(type) > -1) {
+        resp.headers['content-type'] = ['image', type].join('/')
+      }
     }).pipe(res)).catch(next)
   }).catch(next)
 })
