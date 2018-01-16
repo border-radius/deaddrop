@@ -88,6 +88,18 @@ app.get('/:id.:type', (req, res, next) => {
       if (['jpg', 'jpeg', 'png', 'gif', 'bmp', 'webp'].indexOf(type) > -1) {
         resp.headers['content-type'] = ['image', type].join('/')
       }
+      
+      if (type === 'html') {
+        resp.headers['content-type'] = ['text', 'html'].join('/')
+      }
+      
+      if (type === 'js') {
+        resp.headers['content-type'] = ['text', 'javascript'].join('/')
+      }
+      
+      if (type === 'css') {
+        resp.headers['content-type'] = ['text', 'css'].join('/')
+      }
     }).pipe(res)).catch(next)
   }).catch(next)
 })
