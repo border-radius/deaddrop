@@ -13,6 +13,14 @@ routerAdd('GET', '/deaddrop/{file}', e => {
       return msg.audio.mime_type
     }
 
+    if (msg.video) {
+      return msg.video.mime_type || 'video/mp4'
+    }
+
+    if (msg.video_note) {
+      return 'video/mp4'
+    }
+
     if (msg.voice) {
       return 'audio/ogg'
     }
@@ -76,6 +84,14 @@ routerAdd('POST', '/hook', e => {
       return msg.audio
     }
 
+    if (msg?.video) {
+      return msg.video
+    }
+
+    if (msg?.video_note) {
+      return msg.video_note
+    }
+
     if (msg?.voice) {
       return msg.voice
     }
@@ -102,12 +118,29 @@ routerAdd('POST', '/hook', e => {
       return 'mp3'
     }
 
-    if (msg?.document) {
-      if (msg.document.file_type) {
-        return msg.document.file_type
+    if (msg?.video_note) {
+      return 'mp4'
+    }
+
+    if (msg?.video) {
+      const fileNameParts = (msg.video.file_name || '').split('.')
+
+      if (fileNameParts.length > 1) {
+        return fileNameParts.pop()
       }
 
-      const fileNameParts = msg.document.file_name.split('.')
+      const videoExts = {
+        'video/mp4': 'mp4',
+        'video/quicktime': 'mov',
+        'video/webm': 'webm',
+        'video/x-matroska': 'mkv',
+      }
+
+      return videoExts[msg.video.mime_type] || 'mp4'
+    }
+
+    if (msg?.document) {
+      const fileNameParts = (msg.document.file_name || '').split('.')
 
       if (fileNameParts.length > 1) {
         return fileNameParts.pop()
@@ -124,6 +157,8 @@ routerAdd('POST', '/hook', e => {
     reply('Send me any file or picture and I will host it online!')
   } else if (!file || !file.file_id) {
     reply('Just send me anything, dude.')
+  } else if (file.file_size > 20 * 1024 * 1024) {
+    reply('Sorry, Telegram only lets bots download files up to 20 MB.')
   } else {
     const model = $app.findCollectionByNameOrId('deaddrop')
     const record = new Record(model)
