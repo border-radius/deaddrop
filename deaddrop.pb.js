@@ -34,8 +34,29 @@ routerAdd('GET', '/deaddrop/{file}', e => {
     }
   }
 
+  // Telegram often reports documents (e.g. .html) as application/octet-stream
+  // or omits mime_type entirely, which makes browsers download them.
+  // Prefer a type derived from the file extension for browser-viewable formats.
+  const inlineTypes = {
+    html: 'text/html; charset=utf-8',
+    htm: 'text/html; charset=utf-8',
+    txt: 'text/plain; charset=utf-8',
+    css: 'text/css; charset=utf-8',
+    js: 'text/javascript; charset=utf-8',
+    json: 'application/json; charset=utf-8',
+    xml: 'application/xml; charset=utf-8',
+    svg: 'image/svg+xml',
+    pdf: 'application/pdf',
+    png: 'image/png',
+    jpg: 'image/jpeg',
+    jpeg: 'image/jpeg',
+    gif: 'image/gif',
+    webp: 'image/webp',
+  }
+
   try {
     const file = $app.findFirstRecordByData('deaddrop', 'publicId', publicId)
+    const ext = String(file.get('fileType') || '').toLowerCase()
 
     const res = $http.send({
       url: `https://api.telegram.org/bot${botToken}/getFile?file_id=${encodeURIComponent(file.get('fileId'))}`
@@ -45,7 +66,17 @@ routerAdd('GET', '/deaddrop/{file}', e => {
       url: `https://api.telegram.org/file/bot${botToken}/${res.json.result.file_path}`
     })
 
-    return e.blob(200, getMimeType(file.get('message')), data.body)
+    const mimeType = inlineTypes[ext] || getMimeType(file.get('message')) || 'application/octet-stream'
+
+    e.response.header().set('Content-Disposition', 'inline')
+
+    if (mimeType.startsWith('text/html') || mimeType.startsWith('image/svg')) {
+      // Uploaded pages are untrusted: run them in an opaque origin so their
+      // scripts can't read PocketBase auth tokens or cookies on this domain.
+      e.response.header().set('Content-Security-Policy', 'sandbox allow-scripts allow-forms allow-popups allow-modals allow-downloads')
+    }
+
+    return e.blob(200, mimeType, data.body)
   } catch (e) {}
 
   return e.redirect(307, 'https://dd.th61.com')
